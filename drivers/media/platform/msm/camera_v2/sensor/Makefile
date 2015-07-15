@@ -1,0 +1,29 @@
+ccflags-y += -Idrivers/media/platform/msm/camera_v2
+ccflags-y += -Idrivers/media/platform/msm/camera_v2/msm_vb2
+ccflags-y += -Idrivers/media/platform/msm/camera_v2/camera
+ccflags-y += -Idrivers/media/platform/msm/camera_v2/sensor/io
+ccflags-y += -Idrivers/media/platform/msm/camera_v2/sensor/cci
+obj-$(CONFIG_MSMB_CAMERA) += cci/ io/ csiphy/ csid/ actuator/ flash/ eeprom/
+obj-$(CONFIG_MSM_CAMERA_SENSOR) += msm_sensor.o
+obj-$(CONFIG_S5K3L1YX) += s5k3l1yx.o
+obj-$(CONFIG_IMX135) += imx135.o
+obj-$(CONFIG_IMX134) += imx134.o
+obj-$(CONFIG_OV8825) += ov8825.o
+obj-$(CONFIG_OV8865) += ov8865.o
+obj-$(CONFIG_s5k4e1) += s5k4e1.o
+obj-$(CONFIG_OV12830) += ov12830.o
+obj-$(CONFIG_OV2720) += ov2720.o
+obj-$(CONFIG_OV9724) += ov9724.o
+obj-$(CONFIG_HI256) += hi256.o
+obj-$(CONFIG_OV5648) += ov5648.o
+obj-$(CONFIG_MT9M114) += mt9m114.o
+obj-$(CONFIG_SP1628) += sp1628.o
+obj-$(CONFIG_GC0339) += gc0339.o
+# [ALL][MAIN][CAMERA][Kent][32695.01Begin] rebase ov7695 camera sensor driver
+obj-$(CONFIG_S5K5EAYX) += s5k5eayx.o
+obj-$(CONFIG_IMX188) += imx188.o
+obj-$(CONFIG_OV5648_PDP1) += ov5648_pdp1.o
+obj-$(CONFIG_BF3905) += bf3905.o
+# [ALL][MAIN][CAMERA][Kent][32695.01End] adding ov7695 camera sensor driver
+obj-$(CONFIG_S5K5E2) += s5k5e2.o
+obj-$(CONFIG_OV7695) += ov7695.o

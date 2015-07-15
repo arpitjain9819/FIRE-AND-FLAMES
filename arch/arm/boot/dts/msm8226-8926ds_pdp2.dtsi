@@ -1,0 +1,133 @@
+/include/ "msm8226-8926ds_pdp1.dtsi"
+
+/*[Arima5908][32703][StevenChen] LCM driver porting 2014/01/03 begin */
+/include/ "dsi-panel-truly-hx8379a-pdp2-qhd-video.dtsi"
+/* [All][Main][LCM][DMS][39942][StevenChen] Update O-Film LCM driver 2014/06/20 begin */
+/* [All][Main][LCM][DMS][38418][StevenChen] LCM auto detection for 2nd & 3rd source 2014/05/22 begin */
+/include/ "dsi-panel-truly-hx8379c-fwvga-video.dtsi"
+/include/ "dsi-panel-ofilm-hx8379c-fwvga-video.dtsi"
+/* [All][Main][LCM][DMS][38418][StevenChen] LCM auto detection for 2nd & 3rd source 2014/05/22 end */
+/* [All][Main][LCM][DMS][39942][StevenChen] Update O-Film LCM driver 2014/06/20 end */
+/*[Arima5908][32703][StevenChen] LCM driver porting 2014/01/03 end */
+/* [All][Main][LCM][DMS][43472][RaymondLin] LCM TCL-HX8379c driver 2014/09/02 begin */
+/include/ "dsi-panel-tcl-hx8379c-fwvga-video.dtsi"
+/* [All][Main][LCM][DMS][43472][RaymondLin] LCM TCL-HX8379c driver 2014/09/02 end */
+
+/* [Arima5908][32719][JessicaTseng] [All][Main][KEY][DMS]Porting reset key 20140103 start */
+&spmi_bus {
+	qcom,pm8226@0 {
+		qcom,power-on@800 {
+			qcom,pon_2 {
+				linux,code = <115>;
+			};
+		};
+	};
+};
+/* [Arima5908][32719][JessicaTseng] [All][Main][KEY][DMS]Porting reset key 20140103 end */
+
+/*[Arima5908][32703][StevenChen] LCM driver porting 2014/01/03 begin */
+&mdss_dsi0 {
+	qcom,dsi-pref-prim-pan = <&dsi_hx8379a_pdp2_qhd_vid>;	
+};
+
+&dsi_hx8379a_pdp2_qhd_vid {
+	qcom,cont-splash-enabled;
+};
+/* [All][Main][LCM][DMS][38418][StevenChen] LCM auto detection for 2nd & 3rd source 2014/05/22 begin */
+&dsi_truly_hx8379c_fwvga_vid {
+	qcom,cont-splash-enabled;
+};
+
+/* [All][Main][LCM][DMS][39942][StevenChen] Update O-Film LCM driver 2014/06/20 begin */
+&dsi_ofilm_hx8379c_fwvga_vid {
+	qcom,cont-splash-enabled;
+};
+/* [All][Main][LCM][DMS][43472][RaymondLin] LCM TCL-HX8379c driver 2014/09/02 begin */
+&dsi_tcl_hx8379c_fwvga_vid {
+	qcom,cont-splash-enabled;
+};
+/* [All][Main][LCM][DMS][43472][RaymondLin] LCM TCL-HX8379c driver 2014/09/02 end */
+/* [All][Main][LCM][DMS][39942][StevenChen] Update O-Film LCM driver 2014/06/20 end */
+/* [All][Main][LCM][DMS][38418][StevenChen] LCM auto detection for 2nd & 3rd source 2014/05/22 end */
+/*[Arima5908][32703][StevenChen] LCM driver porting 2014/01/03 end */
+
+/* [Arima5908][32747][JessicaTseng] [All][Main][Key][DMS]Using volume_up key enters download mode 20140104 start */
+&soc {
+	gpio_keys {
+		vol_up {
+			label = "volume_up";
+			gpios = <&msmgpio 110 0x1>;
+			linux,input-type = <1>;
+			linux,code = <0>;
+			gpio-key,wakeup;
+			debounce-interval = <15>;
+		};
+		
+		vol_down {
+			label = "volume_down";
+			gpios = <&msmgpio 106 0x1>;
+			linux,input-type = <1>;
+			linux,code = <114>;
+			gpio-key,wakeup;
+			debounce-interval = <15>;
+		};
+	};
+};
+/* [Arima5908][32747][JessicaTseng] [All][Main][Key][DMS]Using volume_up key enters download mode 20140104 end */
+
+&mtp_batterydata{
+	qcom,rpull-up-kohm = <100>;
+	qcom,vref-batt-therm = <1800000>;
+	/include/ "batterydata-8926ds_dp.dtsi"
+};
+
+/*[Arima5908][32742][bozhi_lin] modify battery capacity to 2300mA for BA950 20140108 begin*/
+&pm8226_bms {
+	qcom,battery-data = <&mtp_batterydata>;
+};
+
+&pm8226_chg {
+	qcom,battery-data = <&mtp_batterydata>;
+/*[Arima5908][33960][JasonHsing] set charging timer to 4 hours 20140218 begin*/
+	qcom,tchg-mins = <240>;
+/*[Arima5908][33960][JasonHsing] 20140218 end  */
+/*[Arima5911][35276][bozhi_lin] set safety timer USB to 8 hours and AD to 4 hours 20140325 begin*/
+	qcom,usb-tchg-mins = <480>;
+	qcom,ac-tchg-mins = <240>;
+/*[Arima5911][35276][bozhi_lin] 20140325 end  */
+/*[Arima5911][35561][bozhi_lin] set warm battery voltage to 3.9V caused by voltage will over 4V 20140401 begin*/
+/*[Arima5911][33810][bozhi_lin] For charging safety: set warm battery state and cool battery state to meet requirement 20140321 begin*/
+	qcom,ibatmax-warm-ma = <400>;
+	qcom,warm-bat-decidegc = <450>;
+	qcom,warm-bat-mv = <3900>;
+	qcom,cool-bat-decidegc = <150>;
+	qcom,cool-bat-mv = <4200>;
+	qcom,ibatmax-cool-ma = <1500>;
+	qcom,btc-disabled;
+	qcom,hot-bat-decidegc = <550>;
+	qcom,cold-bat-decidegc = <50>;
+/*[Arima5911][33810][bozhi_lin] 20140321 end  */
+/*[Arima5911][35561][bozhi_lin] 20140401 end  */
+/*[Arima5911][33917][bozhi_lin] set a flag to enable charging timer to stop charging 20140321 begin*/
+	qcom,charging-timer-enable;
+/*[Arima5911][33917][bozhi_lin] 20140321 end  */
+/*[Arima5908][36408][bozhi_lin] set vbatweak to 3.4V for charging fine tune 20140416 begin*/
+	qcom,vbatweak-mv = <3400>;
+/*[Arima5908][36408][bozhi_lin] 20140416 end  */
+/*[Arima5911][34482][bozhi_lin] set VBAT_DET to 4V during call 20140328 begin*/
+	qcom,call-bat-mv = <3900>;
+/*[Arima5911][34482][bozhi_lin] 20140328 end  */
+/*[Arima5911][35151][bozhi_lin] disable resume soc 20140321 begin*/
+	qcom,resume-soc = <0>;
+/*[Arima5911][35151][bozhi_lin] 20140321 end  */
+/*[Arima5911][35152][bozhi_lin] set vbatdet and vbatmax to 4.15V when eoc 20140321 begin*/
+	qcom,vbatdet-delta-mv = <50>;
+/*[Arima5911][35152][bozhi_lin] 20140321 end  */
+/*[Arima5908][36950][bozhi_lin] enable charging maintance 4.15V over 60hrs and 4.1V over 200hrs 20140425 begin*/
+	qcom,first-maintain-mins = <3600>;//<3600>;
+	qcom,second-maintain-mins = <12000>;//<12000>;
+	qcom,first-maintain-mv = <4150>;
+	qcom,second-maintain-mv = <4100>;
+/*[Arima5908][36950][bozhi_lin] 20140425 end  */
+};
+/*[Arima5908][32742][bozhi_lin] 20140108 end  */
