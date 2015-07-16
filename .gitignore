@@ -1,3 +1,7 @@
+*.c~
+*.S~
+*.makefile~
+*.h~
 *.o
 *.o.cmd
 *.order
