@@ -1,6 +1,6 @@
 *.c~
 *.S~
-*.makefile~
+*makefile~
 *.h~
 *.o
 *.o.cmd
