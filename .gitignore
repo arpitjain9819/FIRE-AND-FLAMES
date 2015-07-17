@@ -18,6 +18,7 @@
 .tmp_vmlinux1
 .tmp_vmlinux2
 .version
+.old_version
 Module.symvers
 System.map
 arch/arm/boot/Image
