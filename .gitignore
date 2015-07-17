@@ -8,6 +8,7 @@
 *.builtin
 *.mdp.cmd
 *.cmd
+*kconfig~
 .config
 .missing-syscalls.d
 .tmp_System.map
@@ -17,6 +18,7 @@
 .tmp_vmlinux1
 .tmp_vmlinux2
 .version
+.old_version
 Module.symvers
 System.map
 arch/arm/boot/Image
@@ -143,4 +145,5 @@ usr/.initramfs_data.cpio.d
 usr/gen_init_cpio
 usr/initramfs_data.cpio
 vmlinux
+.config.old
 
