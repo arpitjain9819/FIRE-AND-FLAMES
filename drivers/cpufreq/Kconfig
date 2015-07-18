@@ -175,13 +175,7 @@ config CPU_FREQ_GOV_INTERACTIVE
 	  This governor attempts to reduce the latency of clock
 	  increases so that the system is more responsive to
 	  interactive workloads.
-          
-config CPU_FREQ_GOV_ONDEMANDX
-        tristate "'ondemandx' cpufreq policy governor"
-        select CPU_FREQ_TABLE
-        help
-          governor' - a custom governor! if in doubt, say Y.
-          
+
 	  To compile this driver as a module, choose M here: the
 	  module will be called cpufreq_interactive.
 
