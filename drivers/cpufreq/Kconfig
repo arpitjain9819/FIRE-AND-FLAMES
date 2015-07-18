@@ -121,6 +121,13 @@ config CPU_FREQ_GOV_PERFORMANCE
 	  module will be called cpufreq_performance.
 
 	  If in doubt, say Y.
+	  
+ config CPU_FREQ_DEFAULT_GOV_WHEATLEY
+	bool "wheatley"
+	select CPU_FREQ_GOV_WHEATLEY
+	help
+	  Use the CPUFreq governor 'wheatley' as default.
+
 
 config CPU_FREQ_GOV_POWERSAVE
 	tristate "'powersave' governor"
@@ -176,6 +183,12 @@ config CPU_FREQ_GOV_INTERACTIVE
 	  increases so that the system is more responsive to
 	  interactive workloads.
           
+config CPU_FREQ_GOV_WHEATLEY
+	tristate "'wheatly' cpufreq governor
+	depends on CPU_FREQ
+	help
+	  'wheatly' - a "wheathley" optimized governor!.
+
 config CPU_FREQ_GOV_ONDEMANDX
         tristate "'ondemandx' cpufreq policy governor"
         select CPU_FREQ_TABLE
