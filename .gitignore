@@ -146,4 +146,19 @@ usr/gen_init_cpio
 usr/initramfs_data.cpio
 vmlinux
 .config.old
+include/config/default/cubic.h
+include/config/tcp/cong/advanced.h
+include/config/tcp/cong/bic.h
+include/config/tcp/cong/hstcp.h
+include/config/tcp/cong/htcp.h
+include/config/tcp/cong/hybla.h
+include/config/tcp/cong/illinois.h
+include/config/tcp/cong/lp.h
+include/config/tcp/cong/scalable.h
+include/config/tcp/cong/vegas.h
+include/config/tcp/cong/veno.h
+include/config/tcp/cong/westwood.h
+include/config/tcp/cong/yeah.h
+net/ipv4/tcp_bic.ko
+net/ipv4/tcp_bic.mod.c
 
