@@ -161,4 +161,8 @@ include/config/tcp/cong/westwood.h
 include/config/tcp/cong/yeah.h
 net/ipv4/tcp_bic.ko
 net/ipv4/tcp_bic.mod.c
+drivers/exfat/exfat_core.ko
+drivers/exfat/exfat_core.mod.c
+drivers/exfat/exfat_fs.ko
+drivers/exfat/exfat_fs.mod.c
 
