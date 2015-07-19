@@ -73,3 +73,4 @@ obj-$(CONFIG_QPNP_MISC) += qpnp-misc.o
 # /* --- [All][Main][NFC][DMS][LuboLu] Porting NFC(NXP PN547). 20140103 begin --- */
 obj-$(CONFIG_PN544) += pn544.o
 # /* --- [All][Main][NFC][DMS][LuboLu] 20140103 end   --- */
+obj-$(CONFIG_HPH_HIGH_PERF) += sound_control.o
