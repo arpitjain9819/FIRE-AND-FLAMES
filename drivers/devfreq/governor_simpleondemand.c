@@ -22,30 +22,38 @@
 #define DFSO_UPTHRESHOLD	60
 #define DFSO_DOWNDIFFERENCTIAL	20
 
-static unsigned int dfso_upthreshold = DFSO_UPTHRESHOLD;
-static unsigned int dfso_downdifferential = DFSO_DOWNDIFFERENCTIAL;
+unsigned int dfso_upthreshold = DFSO_UPTHRESHOLD;
+unsigned int dfso_downdifferential = DFSO_DOWNDIFFERENCTIAL;
+
 static int devfreq_simple_ondemand_func(struct devfreq *df,
 					unsigned long *freq,
 					u32 *flag)
 {
-	struct devfreq_msm_adreno_tz_data *priv = df->data;
-	struct devfreq_simple_ondemand_data *data = df->data;
-	struct xstats xs;
-	int err = df->profile->get_dev_status(df->dev.parent, &stat);
-	struct devfreq_msm_adreno_tz_data *priv = df->data;
-	struct xstats xs;
+	struct devfreq_dev_status stat;
+	int err;
 	unsigned long long a, b;
+	unsigned int dfso_upthreshold = DFSO_UPTHRESHOLD;
+	unsigned int dfso_downdifferential = DFSO_DOWNDIFFERENCTIAL;
+	struct devfreq_simple_ondemand_data *data = df->data;
 	unsigned long max = (df->max_freq) ? df->max_freq : UINT_MAX;
 	unsigned long min = (df->min_freq) ? df->min_freq : 0;
-
-	if (priv->bus.num)
-		stat.private_data = &xs;
-	else
-		stat.private_data = NULL;
+ 
+	stat.private_data = NULL;
 
 	err = df->profile->get_dev_status(df->dev.parent, &stat);
+
 	if (err)
 		return err;
+
+	if (data) {
+		if (data->upthreshold)
+			dfso_upthreshold = data->upthreshold;
+		if (data->downdifferential)
+			dfso_downdifferential = data->downdifferential;
+	}
+	if (dfso_upthreshold > 100 ||
+	    dfso_upthreshold < dfso_downdifferential)
+		return -EINVAL;
 
 	/* Prevent overflow */
 	if (stat.busy_time >= (1 << 24) || stat.total_time >= (1 << 24)) {
