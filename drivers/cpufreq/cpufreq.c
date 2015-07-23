@@ -133,7 +133,7 @@ static int __init init_cpufreq_transition_notifier_list(void)
 pure_initcall(init_cpufreq_transition_notifier_list);
 
 static int off __read_mostly;
-int cpufreq_disabled(void)
+static int cpufreq_disabled(void)
 {
 	return off;
 }
@@ -454,6 +454,79 @@ show_one(cpu_utilization, util);
 static int __cpufreq_set_policy(struct cpufreq_policy *data,
 				struct cpufreq_policy *policy);
 
+int cpufreq_update_freq(unsigned int cpu, unsigned int min, unsigned int max)
+{
+	struct cpufreq_policy new_policy;
+	struct cpufreq_policy *policy = cpufreq_cpu_get(cpu);
+	int ret;
+
+	ret = cpufreq_get_policy(&new_policy, cpu);
+	if (ret)
+		return -EINVAL;
+
+	pr_info("%s: CPU%d %u-%ukHz\n", __func__, cpu, min, max);
+
+	new_policy.min = min;
+	new_policy.max = max;
+
+	ret = __cpufreq_set_policy(policy, &new_policy);
+	policy->user_policy.min = policy->min;
+	policy->user_policy.max = policy->max;
+
+	return ret;
+}
+EXPORT_SYMBOL(cpufreq_update_freq);
+
+static u32 last_min_freq = 0;
+static u32 cpufreq_required = 0;
+
+DEFINE_MUTEX(cpufreq_qos_lock);
+
+int cpufreq_qos_requirement(unsigned int kHz)
+{
+	struct cpufreq_policy new_policy;
+	struct cpufreq_policy *policy = cpufreq_cpu_get(0);
+	int ret;
+
+	mutex_lock(&cpufreq_qos_lock);
+
+	ret = cpufreq_get_policy(&new_policy, 0);
+	if (ret)
+		goto out;
+
+	if (kHz > 0) {
+		if (kHz == INT_MAX)
+			kHz = new_policy.cpuinfo.max_freq;
+
+		if (new_policy.min > kHz)
+			goto out;
+
+		pr_info("%s: CPU0 min: %u->%u kHz\n", __func__, new_policy.min, kHz);
+
+		last_min_freq = new_policy.min;
+		new_policy.min = kHz;
+		cpufreq_required = 1;
+	} else if (last_min_freq && cpufreq_required) {
+		pr_info("%s: CPU0 min: %u->%u kHz\n", __func__, new_policy.min, last_min_freq);
+
+		new_policy.min = last_min_freq;
+		cpufreq_required = 0;
+	} else {
+		goto out;
+	}
+
+	ret = __cpufreq_set_policy(policy, &new_policy);
+	policy->user_policy.min = policy->min;
+
+	cpufreq_update_policy(0);
+
+out:
+	mutex_unlock(&cpufreq_qos_lock);
+
+	return ret;
+}
+EXPORT_SYMBOL(cpufreq_qos_requirement);
+
 /**
  * cpufreq_per_cpu_attr_write() / store_##file_name() - sysfs write access
  */
@@ -468,6 +541,9 @@ static ssize_t store_##file_name					\
 	if (ret)							\
 		return -EINVAL;						\
 									\
+	new_policy.min = new_policy.user_policy.min;			\
+	new_policy.max = new_policy.user_policy.max;			\
+									\
 	ret = sscanf(buf, "%u", &new_policy.object);			\
 	if (ret != 1)							\
 		return -EINVAL;						\
@@ -476,7 +552,9 @@ static ssize_t store_##file_name					\
 	if (ret)							\
 		pr_err("cpufreq: Frequency verification failed\n");	\
 									\
-	policy->user_policy.object = new_policy.object;			\
+	policy->user_policy.min = new_policy.min;			\
+	policy->user_policy.max = new_policy.max;			\
+									\
 	ret = __cpufreq_set_policy(policy, &new_policy);		\
 									\
 	return ret ? ret : count;					\
@@ -531,6 +609,8 @@ static ssize_t store_scaling_governor(struct cpufreq_policy *policy,
 	ret = sscanf(buf, "%15s", str_governor);
 	if (ret != 1)
 		return -EINVAL;
+
+	pr_info("%s: CPU%u: %s", __func__, policy->cpu, buf);
 
 	if (cpufreq_parse_governor(str_governor, &new_policy.policy,
 						&new_policy.governor))
@@ -646,7 +726,7 @@ static ssize_t show_scaling_setspeed(struct cpufreq_policy *policy, char *buf)
 }
 
 /**
- * show_scaling_driver - show the current cpufreq HW/BIOS limitation
+ * show_bios_limit - show the current cpufreq HW/BIOS limitation
  */
 static ssize_t show_bios_limit(struct cpufreq_policy *policy, char *buf)
 {

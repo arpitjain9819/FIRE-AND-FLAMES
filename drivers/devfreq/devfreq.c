@@ -115,24 +115,24 @@ EXPORT_SYMBOL(devfreq_get_freq_level);
  */
 static int devfreq_update_status(struct devfreq *devfreq, unsigned long freq)
 {
-	int lev, prev_lev;
+	int lev, prev_lev, ret = 0;
 	unsigned long cur_time;
 
-	lev = devfreq_get_freq_level(devfreq, freq);
-	if (lev < 0)
-		return lev;
+	prev_lev = devfreq_get_freq_level(devfreq, devfreq->previous_freq);
+	if (prev_lev < 0) {
+		ret = prev_lev;
+		goto out;
+	}
 
 	cur_time = jiffies;
 	devfreq->time_in_state[lev] +=
 			 cur_time - devfreq->last_stat_updated;
-	devfreq->last_stat_updated = cur_time;
 
-	if (freq == devfreq->previous_freq)
-		return 0;
-
-	prev_lev = devfreq_get_freq_level(devfreq, devfreq->previous_freq);
-	if (prev_lev < 0)
-		return 0;
+	lev = devfreq_get_freq_level(devfreq, freq);
+	if (lev < 0) {
+		ret = lev;
+		goto out;
+	}
 
 	if (lev != prev_lev) {
 		devfreq->trans_table[(prev_lev *
@@ -140,7 +140,9 @@ static int devfreq_update_status(struct devfreq *devfreq, unsigned long freq)
 		devfreq->total_trans++;
 	}
 
-	return 0;
+out:
+	devfreq->last_stat_updated = cur_time;
+	return ret;
 }
 
 /**
@@ -744,6 +746,26 @@ err_out:
 }
 EXPORT_SYMBOL(devfreq_remove_governor);
 
+int devfreq_policy_add_files(struct devfreq *devfreq,
+			     struct attribute_group attr_group)
+{
+	int ret;
+
+	ret = sysfs_create_group(&devfreq->dev.kobj, &attr_group);
+	if (ret)
+		kobject_put(&devfreq->dev.kobj);
+
+	return ret;
+}
+EXPORT_SYMBOL(devfreq_policy_add_files);
+
+void devfreq_policy_remove_files(struct devfreq *devfreq,
+				 struct attribute_group attr_group)
+{
+	sysfs_remove_group(&devfreq->dev.kobj, &attr_group);;
+}
+EXPORT_SYMBOL(devfreq_policy_remove_files);
+
 static ssize_t show_governor(struct device *dev,
 			     struct device_attribute *attr, char *buf)
 {
@@ -1024,7 +1046,10 @@ static int __init devfreq_init(void)
 		return PTR_ERR(devfreq_class);
 	}
 
-	devfreq_wq = create_freezable_workqueue("devfreq_wq");
+	devfreq_wq =
+	    alloc_workqueue("devfreq_wq",
+			    WQ_HIGHPRI | WQ_UNBOUND | WQ_FREEZABLE |
+			    WQ_MEM_RECLAIM, 0);
 	if (IS_ERR(devfreq_wq)) {
 		class_destroy(devfreq_class);
 		pr_err("%s: couldn't create workqueue\n", __FILE__);
